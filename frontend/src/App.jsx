@@ -60,10 +60,13 @@ const App = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-[#232332] bg-black/60 backdrop-blur-md">
           <div className="flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow" />
-            <h2 className="font-semibold text-lg md:text-xl text-white tracking-tight">ChatAI</h2>
+            {/* <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow" /> */}
+            <h2 className="font-semibold text-lg md:text-xl text-white tracking-tight">🤖 Chat-AI</h2>
           </div>
-          <span className="text-xs text-gray-400 font-medium">Online</span>
+          <div className="flex items-center space-x-2">
+            <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow" />
+            <span className="text-xs text-gray-400 font-medium">Online</span>
+          </div>
         </div>
 
         {/* Messages */}
