@@ -11,6 +11,7 @@ const SendIcon = () => (
   </svg>
 );
 const App = () => {
+  const [socket, setSocket] = useState(null);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([
     {
@@ -28,22 +29,36 @@ const App = () => {
   const handleSend = () => {
     if (!input.trim()) return;
     setMessages((msgs) => [...msgs, { role: "user", text: input.trim() }]);
+    socket.emit("ai-message", { prompt: input.trim() });
     setInput("");
     setIsTyping(true);
 
+
     // Simulate bot reply delay
-    setTimeout(() => {
-      setMessages((msgs) => [
-        ...msgs,
-        { role: "bot", text: "🤖 This is a sample bot reply." },
-      ]);
-      setIsTyping(false);
-    }, 850);
+    // setTimeout(() => {
+    //   setMessages((msgs) => [
+    //     ...msgs,
+    //     { role: "bot", text: "🤖 This is a sample bot reply." },
+    //   ]);
+    //   setIsTyping(false);
+    // }, 850);
   };
 
   const handleInputKeyDown = (e) => {
     if (e.key === "Enter") handleSend();
   };
+
+  useEffect(() => {
+    let socketInstance = io("http://localhost:3000");
+    setSocket(socketInstance);
+    socketInstance.on("ai-message-response", (response) => {
+      setMessages((msgs) => [
+        ...msgs,
+        { role: "bot", text: response },
+      ]);
+      setIsTyping(false);
+    });
+  }, []);
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 via-blue-500 to-sky-400">
       <div className="w-full max-w-md mx-auto flex flex-col h-[90vh] bg-white/60 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/40 relative overflow-hidden">
