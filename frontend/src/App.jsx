@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 const SendIcon = () => (
@@ -10,6 +10,7 @@ const SendIcon = () => (
       d="M22 2L15 22L11 13L2 9l20-7z"></path>
   </svg>
 );
+
 const App = () => {
   const [socket, setSocket] = useState(null);
   const [input, setInput] = useState("");
@@ -29,19 +30,11 @@ const App = () => {
   const handleSend = () => {
     if (!input.trim()) return;
     setMessages((msgs) => [...msgs, { role: "user", text: input.trim() }]);
-    socket.emit("ai-message", { prompt: input.trim() });
+    if (socket) {
+      socket.emit("ai-message", { prompt: input.trim() });
+      setIsTyping(true);
+    }
     setInput("");
-    setIsTyping(true);
-
-
-    // Simulate bot reply delay
-    // setTimeout(() => {
-    //   setMessages((msgs) => [
-    //     ...msgs,
-    //     { role: "bot", text: "🤖 This is a sample bot reply." },
-    //   ]);
-    //   setIsTyping(false);
-    // }, 850);
   };
 
   const handleInputKeyDown = (e) => {
@@ -49,7 +42,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    let socketInstance = io("http://localhost:3000");
+    const socketInstance = io("http://localhost:3000");
     setSocket(socketInstance);
     socketInstance.on("ai-message-response", (response) => {
       setMessages((msgs) => [
@@ -58,15 +51,17 @@ const App = () => {
       ]);
       setIsTyping(false);
     });
+    return () => socketInstance.disconnect();
   }, []);
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-500 via-blue-500 to-sky-400">
-      <div className="w-full max-w-md mx-auto flex flex-col h-[90vh] bg-white/60 backdrop-blur-lg rounded-3xl shadow-2xl border border-white/40 relative overflow-hidden">
+    <div className="flex items-center justify-center min-h-screen bg-black bg-gradient-to-br from-gray-900 via-black to-gray-900">
+      <div className="w-full max-w-md mx-auto flex flex-col h-[90vh] shadow-2xl border border-[#24293d] rounded-2xl backdrop-blur-lg relative overflow-hidden bg-[#181a20]">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-white/40 border-b border-white/50 backdrop-blur-md">
+        <div className="flex items-center justify-between p-4 border-b border-[#232332] bg-black/60 backdrop-blur-md">
           <div className="flex items-center space-x-2">
-            <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-            <h2 className="text-base md:text-lg font-semibold text-gray-800">AI Chatbot</h2>
+            <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow" />
+            <h2 className="font-semibold text-lg md:text-xl text-white tracking-tight">ChatAI</h2>
           </div>
           <span className="text-xs text-gray-400 font-medium">Online</span>
         </div>
@@ -76,24 +71,23 @@ const App = () => {
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex mb-2 ${msg.role === "user" ? "justify-end" : "justify-start"
-                }`}
+              className={`flex mb-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`relative px-4 py-2.5 rounded-2xl max-w-[80%] text-sm shadow-md
+                className={`relative px-4 py-3 text-base max-w-[78%] md:max-w-[70%] border
+                  transition-all duration-300 ease-in-out
                   ${msg.role === "user"
-                    ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-tr-md"
-                    : "bg-white/80 text-gray-800 border border-blue-100 rounded-tl-md"
-                  }
-                  transition-all duration-300 ease-in-out`}
+                    ? "bg-gradient-to-br from-[#323548cc] to-[#23263acc] border-transparent text-white rounded-2xl rounded-tr-md shadow-lg font-normal"
+                    : "bg-gradient-to-bl from-[#fffdfc24] to-[#bbb8e026] border-[#26293b] text-white/90 rounded-2xl rounded-tl-md font-normal"
+                  }`}
                 style={{ animation: "fade-in 0.36s" }}
               >
                 {msg.text}
-                {/* Message Tail */}
+                {/* Message tail (pure visual) */}
                 <span
-                  className={`absolute w-3 h-3 bottom-0 ${msg.role === "user"
-                    ? "right-[-10px] bg-gradient-to-br from-blue-500 to-indigo-600 rounded-br-lg"
-                    : "left-[-10px] bg-white/80 border-b border-l border-blue-100 rounded-bl-lg"
+                  className={`absolute w-3 h-3 bottom-1.5 ${msg.role === "user"
+                    ? "right-[-10px] bg-gradient-to-br from-[#323548cc] to-[#23263acc] rounded-br-lg"
+                    : "left-[-10px] bg-gradient-to-bl from-[#fffdfc24] to-[#bbb8e026] border-b border-l border-[#26293b] rounded-bl-lg"
                     }`}
                   style={{
                     clipPath: msg.role === "user"
@@ -106,8 +100,8 @@ const App = () => {
           ))}
           {/* Typing bubble */}
           {isTyping && (
-            <div className="flex justify-start mb-2">
-              <div className="px-4 py-2.5 rounded-2xl max-w-[60%] bg-white/80 border border-blue-100 text-gray-600 text-sm flex gap-2 items-center">
+            <div className="flex justify-start mb-3">
+              <div className="px-4 py-3 rounded-2xl max-w-[60%] bg-[#292c38cc] border border-[#25283e] text-gray-100 text-base flex gap-2 items-center shadow">
                 <div className="typing-dot bg-blue-400 animate-typing-dot"></div>
                 <div className="typing-dot bg-blue-400 animate-typing-dot [animation-delay:150ms]"></div>
                 <div className="typing-dot bg-blue-400 animate-typing-dot [animation-delay:300ms]"></div>
@@ -118,9 +112,9 @@ const App = () => {
         </div>
 
         {/* Input Bar */}
-        <div className="flex items-center gap-2 px-4 py-3 bg-white/60 backdrop-blur-md border-t border-white/40">
+        <div className="flex items-center gap-2 px-4 py-3 bg-[#101116d9] backdrop-blur border-t border-[#232332]">
           <input
-            className="flex-1 rounded-full px-4 py-2.5 text-gray-800 bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400/50 placeholder:text-gray-400 font-medium text-sm transition"
+            className="flex-1 rounded-2xl px-4 py-2.5 bg-transparent text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400/50 font-medium text-base transition"
             type="text"
             value={input}
             placeholder="Type your message…"
@@ -129,7 +123,7 @@ const App = () => {
             autoFocus
           />
           <button
-            className="grid place-items-center ml-1 text-white bg-gradient-to-br from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 p-3 rounded-full shadow-lg transition active:scale-95 disabled:opacity-60"
+            className="grid place-items-center ml-1 text-white bg-gradient-to-br from-indigo-600 to-blue-500 hover:from-indigo-700 hover:to-blue-600 p-3 rounded-full shadow-lg transition active:scale-95 disabled:opacity-60"
             onClick={handleSend}
             disabled={!input.trim()}
             aria-label="Send"
@@ -141,18 +135,18 @@ const App = () => {
         <style>{`
           .custom-scrollbar {
             scrollbar-width: thin;
-            scrollbar-color: #a0aec0 #f7fafc;
+            scrollbar-color: #23293e #181a20;
           }
           .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 7px;
           }
           .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #a0aec0;
-            border-radius: 4px;
+            background: #23293e;
+            border-radius: 6px;
           }
           .typing-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 9999px;
             display: inline-block;
           }
@@ -170,13 +164,13 @@ const App = () => {
             animation: typing-dot 1s infinite;
           }
           @keyframes fade-in {
-            0% { opacity: 0; transform: scale(0.97) translateY(16px);}
+            0% { opacity: 0; transform: scale(0.97) translateY(14px);}
             100% { opacity: 1; transform: scale(1) translateY(0);}
           }
         `}</style>
       </div>
     </div>
   );
-}
+};
 
 export default App;
