@@ -42,7 +42,7 @@ const App = () => {
   };
 
   useEffect(() => {
-    const socketInstance = io("http://localhost:3000");
+    const socketInstance = io("http://localhost:3000" || "https://ai-chatbot-project-6ugx.onrender.com/");
     setSocket(socketInstance);
     socketInstance.on("ai-message-response", (response) => {
       setMessages((msgs) => [
